@@ -70,7 +70,7 @@ public class DocumentumFetcher implements ContentFetcher {
         try {
             IDfCollection collection = client.getDocumentsByQuery(config.properties().docQuery());
             while (collection.next()) {
-                processFile(context, (IDfDocument) collection.getTypedObject());
+                processFile(context, client.getDocumentByObject(collection.getTypedObject()));
             }
         }
         catch (DfException e) {

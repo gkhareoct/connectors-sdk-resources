@@ -76,6 +76,10 @@ public class DocumentumClient {
         query.setDQL(docQuery);
         return query.execute(session, IDfQuery.DF_QUERY);
     }
+    public IDfDocument getDocumentByObject(IDfTypedObject obj) throws DfException {
+        IDfId objectId = new DfId(obj.getString("r_object_id"));
+        return (IDfDocument)session.getObject(objectId);
+    }
 
     public InputStream getDocumentContents(String docId) throws DfException {
         IDfId id = new DfId(docId);
