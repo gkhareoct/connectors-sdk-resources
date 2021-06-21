@@ -86,7 +86,6 @@ public class DocumentumFetcher implements ContentFetcher {
         try {
             doc = DocumentumFileUtil.extractMetaData(dfDoc);
             if (!DocumentumFileUtil.isArchive(dfDoc)) {
-                emitDocument(context, doc);
                 emitContent(context, doc);
             }
         } catch (DfException e) {
@@ -97,18 +96,16 @@ public class DocumentumFetcher implements ContentFetcher {
             else {
                 logger.error("Error extracting metadata", e);
             }
+        } catch (ContentEmitException e) {
+            logger.error("Error emitting document content content", e);
+            context.newError(doc.getId(), e.getMessage()).emit();
         }
     }
 
-    private void emitDocument(FetchContext context, MetaDocument doc) {
-        context.newDocument(doc.getId())
+    private void emitContent(FetchContext context, MetaDocument doc) throws DfException, ContentEmitException {
+        context.newContent(doc.getId(), client.getDocumentContents(doc.getId()))
                 .fields(f -> f.merge(doc.getAllFields()))
                 .emit();
-    }
-
-    private void emitContent(FetchContext context, MetaDocument doc) throws DfException {
-        InputStream is = client.getDocumentContents(doc.getId());
-        context.newContent(doc.getId(), () -> is).emit();
     }
 
     @Override
