@@ -7,16 +7,15 @@ import com.amdocs.connector.plugins.documentum.config.DocumentumConfig;
 import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfDocument;
 import com.documentum.fc.common.DfException;
+import com.lucidworks.fusion.connector.plugin.api.exceptions.ContentEmitException;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.result.FetchResult;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.result.StartResult;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.result.StopResult;
 import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.ContentFetcher;
-import com.lucidworks.fusion.connector.plugin.api.fetcher.type.content.FetchInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.io.InputStream;
 
 public class DocumentumFetcher implements ContentFetcher {
 
@@ -33,30 +32,6 @@ public class DocumentumFetcher implements ContentFetcher {
 
     @Override
     public StartResult start(StartContext context) {
-        
-        // debug
-        try {
-            logger.info(String.format("Loaded class: %s",
-                    Thread.currentThread()
-                            .getContextClassLoader()
-                            .loadClass("com.documentum.xml.jaxp.DfDocumentBuilderFactoryImpl")
-                            .getSimpleName()
-            ));
-        } catch (ClassNotFoundException e) {
-            logger.error("Error loading com.documentum.xml.jaxp.DfDocumentBuilderFactoryImpl", e);
-        }
-
-        try {
-            logger.info(String.format("Loaded class: %s",
-                    Thread.currentThread()
-                            .getContextClassLoader()
-                            .loadClass("com.documentum.xml.jaxp.DfFactoryFinder")
-                            .getSimpleName()
-            ));
-        } catch (ClassNotFoundException e) {
-            logger.error("Error loading com.documentum.xml.jaxp.DfFactoryFinder", e);
-        }
-
         this.client.connect();
         return context.newResult();
     }
@@ -64,8 +39,7 @@ public class DocumentumFetcher implements ContentFetcher {
     @Override
     public FetchResult fetch(FetchContext context) {
 
-        FetchInput input = context.getFetchInput();
-        logger.info("Received FetchInput -> {}", input);
+        logger.info("Received FetchInput -> {}", context.getFetchInput());
 
         try {
             IDfCollection collection = client.getDocumentsByQuery(config.properties().docQuery());
@@ -94,7 +68,7 @@ public class DocumentumFetcher implements ContentFetcher {
                 context.newError(doc.getId(), e.getMessage()).emit();
             }
             else {
-                logger.error("Error extracting metadata", e);
+                logger.error("Error extracting documentum metadata", e);
             }
         } catch (ContentEmitException e) {
             logger.error("Error emitting document content content", e);

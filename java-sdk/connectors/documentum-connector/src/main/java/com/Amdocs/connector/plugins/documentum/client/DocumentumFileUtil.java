@@ -1,6 +1,5 @@
 package com.amdocs.connector.plugins.documentum.client;
 
-import com.amdocs.connector.plugins.documentum.fetcher.DocumentumFetcher;
 import com.documentum.fc.client.IDfDocument;
 import com.documentum.fc.common.DfException;
 import org.slf4j.Logger;
@@ -27,12 +26,13 @@ public class DocumentumFileUtil {
     }
 
     public static MetaDocument extractMetaData(IDfDocument dfDoc) throws DfException {
-        MetaDocument metaDoc = new MetaDocument();
+
+        logger.info("Extracting metadata for doc: {} (id: {})", dfDoc.getString(UNIQUE_DOCUMENT_ID), dfDoc.getString(DOCUMENT_NAME));
+
+        var metaDoc = new MetaDocument();
         metaDoc.setContentType(dfDoc.getContentType());
         metaDoc.setId(dfDoc.getString(UNIQUE_DOCUMENT_ID));
-        logger.info("document id=" +dfDoc.getString(UNIQUE_DOCUMENT_ID));
         metaDoc.setTitle(dfDoc.getString(DOCUMENT_NAME));
-        logger.info("document name = " +dfDoc.getString(DOCUMENT_NAME));
         return metaDoc;
     }
 }
